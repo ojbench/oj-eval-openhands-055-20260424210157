@@ -152,15 +152,32 @@ public:
         if (ask_date < send_date)
             return "mail not send";
         
+        // Check if we're before the first station
+        if (len > 0 && ask_date < station_time[0]) {
+            return "on the way to " + station_name[0];
+        }
+        
+        // Check which station we're at or past
         for (int i = 0; i < len; i++) {
-            if (ask_date < station_time[i]) {
-                if (i == 0)
-                    return "on the way to " + station_name[i];
-                else
-                    return "on the way to " + station_name[i];
+            // If we're at or past this station but before the next one (or before arrive if this is the last station)
+            if (!(ask_date < station_time[i])) {  // We've reached or passed station i
+                if (i + 1 < len) {
+                    // There's another station ahead
+                    if (ask_date < station_time[i + 1]) {
+                        return "on the way to " + station_name[i + 1];
+                    }
+                } else {
+                    // This is the last station, check if we've reached destination
+                    if (ask_date < arrive_date) {
+                        return "on the way to destination";
+                    } else {
+                        return "already arrive";
+                    }
+                }
             }
         }
         
+        // If len == 0, check if we've arrived
         if (ask_date < arrive_date)
             return "on the way to destination";
         else
